@@ -1,0 +1,382 @@
+<input type="password" id="password">
+<button onclick="giris()">Giriş</button>
+
+<script>
+function giris() {
+  if (document.getElementById("password").value === "seymakalpemirhan") {
+    document.body.style.display = "block";
+  } else {
+    alert("Yanlış şifre");
+  }
+}
+</script>
+<button onclick="toggleTheme()">🌙 / ☀️</button>
+
+<div id="page1" class="page active">
+  <h1>1. Sayfa</h1>
+  <button onclick="next()">İleri</button>
+</div>
+
+<div id="page2" class="page">
+  <h1>2. Sayfa</h1>
+  <button onclick="prev()">Geri</button>
+  <button onclick="next()">İleri</button>
+</div>
+
+<div id="page3" class="page">
+  <h1>3. Sayfa</h1>
+  <button onclick="prev()">Geri</button>
+  <button onclick="next()">İleri</button>
+</div>
+
+<div id="page4" class="page">
+  <h1>4. Sayfa</h1>
+  <button onclick="prev()">Geri</button>
+</div>
+
+<style id="3z2r0n">
+.page {
+  display: none;
+}
+
+.active {
+  display: block;
+}
+</style>
+
+<script id="5y0m8s">
+let current = 1;
+
+function showPage(num) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById("page" + num).classList.add("active");
+}
+
+function next() {
+  if (current < 4) {
+    current++;
+    showPage(current);
+  }
+}
+
+function prev() {
+  if (current > 1) {
+    current--;
+    showPage(current);
+  }
+}
+</script>
+<div id="page1" class="page active">
+  <h1>1. Sayfa</h1>
+  
+  <div id="ui1"></div> <!-- Kalpler buraya gelecek -->
+
+  <button onclick="next()">İleri</button>
+</div>
+
+<style>
+#ui1 {
+  position: relative;
+  width: 100%;
+  height: 80vh; /* animasyon alanı */
+  margin-top: 20px;
+}
+
+.love_word {
+  position: absolute;
+  color: #ea80b0;
+  font-size: 1.2rem;
+  text-shadow: 0 0 10px #fff;
+  white-space: nowrap;
+}
+</style>
+
+<script>
+function startPage1Hearts() {
+  const ui = document.getElementById("ui1");
+  ui.innerHTML = ""; // Önceki varsa temizle
+
+  function heart(t) {
+    let x = 16 * Math.pow(Math.sin(t), 3);
+    let y = 13 * Math.cos(t) - 5 * Math.cos(2*t)
+          - 2 * Math.cos(3*t) - Math.cos(4*t);
+    return {x, y};
+  }
+
+  for (let i = 0; i < 200; i++) {
+    let t = Math.PI * 2 * (i / 200);
+    let pos = heart(t);
+
+    let el = document.createElement("div");
+    el.className = "love_word";
+    el.innerText = "I love you"; // Yazıyı buradan değiştirebilirsin
+
+    el.style.left = (50 + pos.x * 2) + "%";
+    el.style.top = (50 - pos.y * 2) + "%";
+
+    ui.appendChild(el);
+  }
+}
+
+// showPage fonksiyonunu güncelle
+let current = 1;
+function showPage(num) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById("page" + num).classList.add("active");
+
+  if(num === 1) startPage1Hearts(); // Sadece 1. sayfada animasyon
+}
+</script>
+<div id="page2" class="page">
+  <h1>2. Sayfa</h1>
+  <canvas id="canvas2"></canvas>
+  <button onclick="prev()">Geri</button>
+  <button onclick="next()">İleri</button>
+</div>
+
+<style>
+#canvas2 {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1; /* yazıların üstünde görünmesi için */
+}
+</style>
+
+<script>
+let canvas = document.getElementById("canvas2");
+let ctx = canvas.getContext("2d");
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+// Fare takibi
+let mouse = {x: canvas.width/2, y: canvas.height/2};
+window.addEventListener("mousemove", (e) => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+});
+
+// Vektör sınıfı
+class Vector {
+  constructor(x, y) { this.x = x; this.y = y; }
+  add(v) { return new Vector(this.x + v.x, this.y + v.y); }
+  scale(s) { return new Vector(this.x * s, this.y * s); }
+}
+
+// Animasyon parametreleri
+let rad = 0;
+let origin = new Vector(canvas.width/2, canvas.height/2);
+
+// Kalp formülü (polar)
+function polar(rad, time) {
+  rad += Math.sin(time / 100);
+  let x = 16 * Math.pow(Math.sin(rad), 3);
+  let y = 13 * Math.cos(rad) - 5 * Math.cos(2*rad) - 2*Math.cos(3*rad) - Math.cos(4*rad);
+  let scale = (Math.sin(time/18) + 3) * 20;
+  return new Vector(x*scale, -y*scale).add(origin);
+}
+
+function animate(time) {
+  ctx.clearRect(0,0,canvas.width, canvas.height);
+
+  let pos = polar(rad, time);
+  rad += 0.02;
+
+  ctx.fillStyle = "red";
+  ctx.beginPath();
+  ctx.arc(pos.x, pos.y, 5, 0, Math.PI*2);
+  ctx.fill();
+
+  // Origin fareye yaklaşsın
+  origin = origin.add(new Vector(mouse.x, mouse.y).add(origin.scale(-1)).scale(0.05));
+
+  requestAnimationFrame(animate);
+}
+
+// Animasyonu sadece 2. sayfa açıldığında başlat
+function startPage2Canvas() {
+  animate(0);
+}
+</script>
+<div id="page3" class="page">
+  <h1>3. Sayfa</h1>
+  <div id="three-container"></div>
+  <button onclick="prev()">Geri</button>
+  <button onclick="next()">İleri</button>
+</div>
+
+<style>
+#three-container {
+  width: 100%;
+  height: 80vh;
+}
+</style>
+
+<!-- Three.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+
+<script>
+let scene3, camera3, renderer3;
+
+function startPage3Three() {
+  // Eğer daha önce başlatıldıysa tekrar başlatma
+  if(scene3) return;
+
+  scene3 = new THREE.Scene();
+
+  camera3 = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    5000
+  );
+  camera3.position.z = 500;
+
+  renderer3 = new THREE.WebGLRenderer({antialias:true});
+  renderer3.setPixelRatio(window.devicePixelRatio > 1 ? 2 : 1);
+  renderer3.setSize(window.innerWidth, window.innerHeight);
+
+  document.getElementById("three-container").appendChild(renderer3.domElement);
+
+  // Basit bir obje ekleyelim (dönen küre)
+  const geometry = new THREE.SphereGeometry(50, 32, 32);
+  const material = new THREE.MeshStandardMaterial({color:0xff5555});
+  const sphere = new THREE.Mesh(geometry, material);
+  scene3.add(sphere);
+
+  // Işık ekleyelim
+  const light = new THREE.DirectionalLight(0xffffff, 1);
+  light.position.set(1,1,1);
+  scene3.add(light);
+
+  // Animasyon
+  function animate() {
+    requestAnimationFrame(animate);
+    sphere.rotation.y += 0.01;
+    sphere.rotation.x += 0.005;
+    renderer3.render(scene3, camera3);
+  }
+  animate();
+
+  // Resize handling
+  window.addEventListener("resize", () => {
+    camera3.aspect = window.innerWidth / window.innerHeight;
+    camera3.updateProjectionMatrix();
+    renderer3.setSize(window.innerWidth, window.innerHeight);
+  });
+}
+</script>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mektup</title>
+<style>
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f2e8dc;
+  font-family: sans-serif;
+}
+
+.envelope-container {
+  position: relative;
+  width: 250px;
+  height: 150px;
+  perspective: 1000px;
+}
+
+.envelope {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  border: 2px solid #d4b483;
+  border-radius: 10px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 1s ease-in-out;
+  cursor: pointer;
+}
+
+.envelope.open {
+  transform: rotateX(-180deg);
+}
+
+.flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: #d4b483;
+  border-bottom: 2px solid #d4b483;
+  border-radius: 10px 10px 0 0;
+  transform-origin: bottom;
+  backface-visibility: hidden;
+}
+
+.flap::after {
+  content: "❤️";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+}
+
+.letter {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  border: 2px solid #d4b483;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  box-sizing: border-box;
+  transition: top 1s ease-in-out;
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.envelope.open .letter {
+  top: 0%;
+}
+</style>
+</head>
+<body>
+
+<div class="envelope-container">
+  <div class="envelope" onclick="openEnvelope(this)">
+    <div class="flap"></div>
+    <div class="letter">
+      seyma...nasıl tepki vericeniii bana karşı nasıl hissettini bilmiyorummm <br>
+      ama sana cidden hayranımm sana aşığım benn.. bunu kabullenmem lazım sanırımmm <br>
+      hayatımın aşkı olurmusunn..
+    </div>
+  </div>
+</div>
+
+<script>
+function openEnvelope(el) {
+  el.classList.toggle("open");
+}
+</script>
+
+</body>
+</html>
